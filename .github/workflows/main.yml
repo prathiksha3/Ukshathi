@@ -46,7 +46,7 @@ jobs:
 
   build-backend:
     name: Build and Test Backend
-    runs-on: windows-latest
+    runs-on: ubuntu-latest  # ✅ Fix: Changed from Windows to Ubuntu (Linux)
 
     services:
       mysql:
@@ -72,22 +72,20 @@ jobs:
           python-version: '3.9'
 
       - name: Verify Backend Directory
-        run: dir
+        run: ls -l
         working-directory: backend
 
       - name: Install dependencies
-        shell: cmd
         run: |
-          cd backend
           python -m venv venv
-          call venv\Scripts\activate
+          source venv/bin/activate
           pip install -r requirements.txt
+        working-directory: backend
 
       - name: Run backend tests
-        shell: cmd
         env:
           DATABASE_URL: mysql://root:root@127.0.0.1/testdb
         run: |
-          cd backend
-          call venv\Scripts\activate
+          source venv/bin/activate
           pytest
+        working-directory: backend
