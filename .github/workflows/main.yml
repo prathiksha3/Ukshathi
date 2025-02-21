@@ -1,4 +1,4 @@
-name: CI/CD Pipeline
+name: CI Pipeline
 
 on:
   push:
@@ -14,25 +14,25 @@ jobs:
     runs-on: windows-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    - name: Set up Node.js
-      uses: actions/setup-node@v2
-      with:
-        node-version: '14'
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
 
-    - name: Install dependencies
-      run: npm install
-      working-directory: ./frontend
+      - name: Install dependencies
+        run: npm install
+        working-directory: ./frontend
 
-    - name: Build frontend
-      run: npm run build
-      working-directory: ./frontend
+      - name: Build frontend
+        run: npm run build
+        working-directory: ./frontend
 
-    - name: Run frontend tests
-      run: npm test
-      working-directory: ./frontend
+      - name: Run frontend tests
+        run: npm test
+        working-directory: ./frontend
 
   build-backend:
     name: Build and Test Backend
@@ -40,7 +40,7 @@ jobs:
 
     services:
       mysql:
-        image: mysql:5.7
+        image: mysql:8.0
         ports:
           - 3306:3306
         env:
@@ -53,25 +53,25 @@ jobs:
           --health-retries=3
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    - name: Set up Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: '3.9'
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: '3.9'
 
-    - name: Install dependencies
-      run: |
-        python -m venv venv
-        .\venv\Scripts\activate
-        pip install -r requirements.txt
-      working-directory: ./backend
+      - name: Install dependencies
+        run: |
+          python -m venv venv
+          call venv\Scripts\activate
+          pip install -r requirements.txt
+        working-directory: ./backend
 
-    - name: Run backend tests
-      env:
-        DATABASE_URL: mysql://root:root@127.0.0.1/testdb
-      run: |
-        .\venv\Scripts\activate
-        pytest
-      working-directory: ./backend
+      - name: Run backend tests
+        env:
+          DATABASE_URL: mysql://root:root@127.0.0.1/testdb
+        run: |
+          call venv\Scripts\activate
+          pytest
+        working-directory: ./backend
