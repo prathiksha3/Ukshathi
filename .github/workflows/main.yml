@@ -22,17 +22,27 @@ jobs:
         with:
           node-version: '18'
 
+      - name: Verify Frontend Directory
+        run: dir
+        working-directory: frontend
+
       - name: Install dependencies
-        run: npm install
-        working-directory: ./frontend
+        shell: cmd
+        run: |
+          cd frontend
+          npm install
 
       - name: Build frontend
-        run: npm run build
-        working-directory: ./frontend
+        shell: cmd
+        run: |
+          cd frontend
+          npm run build
 
       - name: Run frontend tests
-        run: npm test
-        working-directory: ./frontend
+        shell: cmd
+        run: |
+          cd frontend
+          npm test
 
   build-backend:
     name: Build and Test Backend
@@ -61,17 +71,23 @@ jobs:
         with:
           python-version: '3.9'
 
+      - name: Verify Backend Directory
+        run: dir
+        working-directory: backend
+
       - name: Install dependencies
+        shell: cmd
         run: |
+          cd backend
           python -m venv venv
           call venv\Scripts\activate
           pip install -r requirements.txt
-        working-directory: ./backend
 
       - name: Run backend tests
+        shell: cmd
         env:
           DATABASE_URL: mysql://root:root@127.0.0.1/testdb
         run: |
+          cd backend
           call venv\Scripts\activate
           pytest
-        working-directory: ./backend
