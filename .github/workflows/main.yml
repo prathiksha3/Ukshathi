@@ -1,0 +1,91 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-frontend:
+    name: Build and Test Frontend
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Verify Frontend Directory
+        run: dir
+        working-directory: frontend
+
+      - name: Install dependencies
+        shell: cmd
+        run: |
+          cd frontend
+          npm install
+
+      - name: Build frontend
+        shell: cmd
+        run: |
+          cd frontend
+          npm run build
+
+      - name: Run frontend tests
+        shell: cmd
+        run: |
+          cd frontend
+          npm test
+
+  build-backend:
+    name: Build and Test Backend
+    runs-on: ubuntu-latest  # ✅ Fix: Changed from Windows to Ubuntu (Linux)
+
+    services:
+      mysql:
+        image: mysql:8.0
+        ports:
+          - 3306:3306
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: testdb
+        options: > 
+          --health-cmd="mysqladmin ping --silent"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: '3.9'
+
+      - name: Verify Backend Directory
+        run: ls -l
+        working-directory: backend
+
+      - name: Install dependencies
+        run: |
+          python -m venv venv
+          source venv/bin/activate
+          pip install -r requirements.txt
+        working-directory: backend
+
+      - name: Run backend tests
+        env:
+          DATABASE_URL: mysql://root:root@127.0.0.1/testdb
+        run: |
+          source venv/bin/activate
+          pytest
+        working-directory: backend
